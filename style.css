@@ -1,0 +1,127 @@
+/* Загальні налаштування сторінки */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    /* Красивий світло-фіолетовий градієнтний фон */
+    background: linear-gradient(135deg, #f3e8ff 0%, #e0d4fc 50%, #d8b4fe 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #2e1065;
+    padding: 20px;
+}
+
+/* Головний контейнер, що ділить екран на контент і бокову панель */
+.main-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.9);
+    border-radius: 24px;
+    padding: 40px 50px;
+    max-width: 900px;
+    width: 100%;
+    box-shadow: 0 15px 35px rgba(107, 33, 168, 0.15);
+    gap: 40px;
+}
+
+/* Ліва частина: заголовок і кнопки */
+.content-section {
+    flex: 1;
+    text-align: center;
+}
+
+h1 {
+    color: #4c1d95;
+    font-size: 28px;
+    margin-bottom: 10px;
+}
+
+p {
+    color: #6b21a8;
+    font-size: 16px;
+    margin-bottom: 25px;
+}
+
+.btn-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+.btn {
+    display: inline-block;
+    padding: 14px 25px;
+    font-size: 17px;
+    font-weight: 600;
+    color: #ffffff;
+    background: linear-gradient(90deg, #7e22ce, #9333ea);
+    text-decoration: none;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 280px;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(126, 34, 206, 0.25);
+    transition: transform 0.2s, box-shadow 0.2s, background 0.3s;
+}
+
+.btn:hover {
+    background: linear-gradient(90deg, #6b21a8, #7e22ce);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(126, 34, 206, 0.35);
+}
+
+/* Права частина (збоку): картка з ПК та написом "8 клас" */
+.side-banner {
+    flex: 0 0 calc(60% - 17.5px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #ffffff;
+    padding: 25px;
+    border-radius: 20px;
+    box-shadow: 0 8px 20px rgba(107, 33, 168, 0.1);
+    min-width: 270px;
+    border: 1px solid #e9d5ff;
+}
+
+.pc-icon {
+    width: 100%;
+    max-height: 360px;
+    height: auto;
+    object-fit: contain;
+    border-radius: 14px;
+    margin-bottom: 20px;
+}
+
+.class-badge {
+    font-size: 26px;
+    font-weight: 800;
+    color: #ffffff;
+    background: #8b5cf6;
+    padding: 8px 24px;
+    border-radius: 50px;
+    letter-spacing: 1px;
+    box-shadow: 0 4px 10px rgba(139, 92, 246, 0.3);
+}
+
+/* Адаптація для мобільних телефонів */
+@media (max-width: 700px) {
+    .main-wrapper {
+        flex-direction: column-reverse;
+        padding: 30px 20px;
+    }
+    .side-banner {
+        width: 100%;
+    }
+}
