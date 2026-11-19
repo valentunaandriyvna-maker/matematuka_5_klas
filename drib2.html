@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тренажер: Додавання дробів з різними знаменниками (5 клас)</title>
+    <!-- Підключення Tailwind CSS для сучасного та адаптивного дизайну -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Підключення шрифту Nunito та Inter для приємної та чіткої типографіки -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+            background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+        
+        h1, h2, h3, .font-display {
+            font-family: 'Nunito', sans-serif;
+        }
+
+        /* Стилізація математичних дробів */
+        .fraction {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            vertical-align: middle;
+            font-weight: 700;
+            font-size: 1.5rem;
+            line-height: 1.1;
+            margin: 0 4px;
+        }
+
+        .fraction-top {
+            border-bottom: 3px solid currentColor;
+            padding: 0 8px 3px 8px;
+            min-width: 36px;
+            text-align: center;
+        }
+
+        .fraction-bottom {
+            padding: 3px 8px 0 8px;
+            min-width: 36px;
+            text-align: center;
+        }
+
+        /* Додатковий множник (дужка зверху) */
+        .multiplier-badge {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: #d97706;
+            background-color: #fef3c7;
+            border: 2px solid #f59e0b;
+            border-radius: 8px;
+            padding: 1px 6px;
+            margin-bottom: 4px;
+            box-shadow: 0 2px 4px rgba(245, 158, 11, 0.2);
+            transition: all 0.2s ease;
+        }
+
+        .multiplier-badge::after {
+            content: '\\';
+            position: absolute;
+            bottom: -14px;
+            left: -4px;
+            font-size: 14px;
+            color: #f59e0b;
+            font-weight: bold;
+            transform: rotate(-15deg);
+        }
+
+        /* Прибираємо стрілочки у полів вводу чисел */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+
+        /* Анімації */
+        @keyframes pulse-gentle {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+        }
+        .animate-pulse-gentle {
+            animation: pulse-gentle 2s infinite;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.35s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col text-slate-800 selection:bg-indigo-200 selection:text-indigo-900">
+
+    <!-- Верхня панель навігації та прогресу -->
+    <header class="bg-white/90 backdrop-blur-md border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+        <div class="max-w-4xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-display font-extrabold text-xl shadow-md shadow-indigo-200">
+                    ½+⅓
+                </div>
+                <div>
+                    <h1 class="font-display font-extrabold text-lg sm:text-xl text-slate-900 leading-tight">
+                        Майстер дробів
+                    </h1>
+                    <p class="text-xs text-slate-500 font-medium">Математика • 5 клас</p>
+                </div>
+            </div>
+
+            <!-- Панель статистики -->
+            <div class="flex items-center gap-2 sm:gap-4">
+                <!-- Кнопка пам'ятки -->
+                <button onclick="toggleTheoryModal()" class="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 font-semibold text-sm transition active:scale-95">
+                    <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                    </svg>
+                    <span>Правило</span>
+                </button>
+
+                <!-- Лічильник балів -->
+                <div class="flex items-center gap-3 bg-slate-100 px-3.5 py-1.5 rounded-xl border border-slate-200">
+                    <div class="text-center">
+                        <span class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold">Розв'язано</span>
+                        <span id="score-solved" class="font-display font-extrabold text-indigo-600 text-base">0</span>
+                    </div>
+                    <div class="h-6 w-px bg-slate-300"></div>
+                    <div class="text-center">
+                        <span class="block text-[10px] uppercase tracking-wider text-slate-500 font-bold">Серія 🔥</span>
+                        <span id="score-streak" class="font-display font-extrabold text-orange-500 text-base">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Головний контейнер тренажера -->
+    <main class="flex-grow max-w-4xl w-full mx-auto px-4 py-6 sm:py-8 flex flex-col gap-6">
+
+        <!-- Перемикач рівня складності -->
+        <div class="bg-white p-2 rounded-2xl shadow-sm border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-2">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-400 px-3">Обери рівень складності:</span>
+            <div class="grid grid-cols-3 gap-1.5 w-full sm:w-auto">
+                <button onclick="setDifficulty(1)" id="btn-diff-1" class="diff-btn px-3 py-2 rounded-xl text-xs sm:text-sm font-bold transition bg-indigo-600 text-white shadow-sm">
+                    1. Легкий
+                </button>
+                <button onclick="setDifficulty(2)" id="btn-diff-2" class="diff-btn px-3 py-2 rounded-xl text-xs sm:text-sm font-bold transition text-slate-600 hover:bg-slate-100">
+                    2. Середній
+                </button>
+                <button onclick="setDifficulty(3)" id="btn-diff-3" class="diff-btn px-3 py-2 rounded-xl text-xs sm:text-sm font-bold transition text-slate-600 hover:bg-slate-100">
+                    3. Майстер
+                </button>
+            </div>
+        </div>
+
+        <!-- Картка завдання -->
+        <section class="bg-white rounded-3xl shadow-md border border-slate-200/80 overflow-hidden">
+            
+            <!-- Шапка завдання з умовою -->
+            <div class="bg-gradient-to-r from-indigo-600 to-blue-600 p-6 sm:p-8 text-white text-center relative overflow-hidden">
+                <!-- Декоративні кола -->
+                <div class="absolute -top-10 -left-10 w-32 h-32 rounded-full bg-white/10 pointer-events-none"></div>
+                <div class="absolute -bottom-12 -right-8 w-40 h-40 rounded-full bg-white/10 pointer-events-none"></div>
+
+                <p class="text-indigo-100 text-sm font-medium mb-3">Обчисли суму дробів крок за кроком:</p>
+                
+                <!-- Відображення прикладу -->
+                <div class="inline-flex items-center justify-center bg-white/15 backdrop-blur-sm px-6 py-4 rounded-2xl border border-white/25 shadow-inner">
+                    <div class="fraction text-white text-3xl sm:text-4xl">
+                        <span id="prob-n1" class="fraction-top border-white">1</span>
+                        <span id="prob-d1" class="fraction-bottom">2</span>
+                    </div>
+                    <span class="text-3xl sm:text-4xl font-extrabold mx-3 text-amber-300">+</span>
+                    <div class="fraction text-white text-3xl sm:text-4xl">
+                        <span id="prob-n2" class="fraction-top border-white">1</span>
+                        <span id="prob-d2" class="fraction-bottom">3</span>
+                    </div>
+                    <span class="text-3xl sm:text-4xl font-extrabold mx-3 text-indigo-200">=</span>
+                    <span class="text-3xl sm:text-4xl font-extrabold text-amber-300">?</span>
+                </div>
+            </div>
+
+            <!-- Покроковий інтерактивний простір -->
+            <div class="p-5 sm:p-8 flex flex-col gap-6">
+
+                <!-- КРОК 1: Знаходження спільного знаменника -->
+                <div id="step-1-box" class="rounded-2xl border-2 border-indigo-500 bg-indigo-50/40 p-5 transition-all">
+                    <div class="flex items-start justify-between gap-2 mb-3">
+                        <div class="flex items-center gap-2.5">
+                            <span id="step-1-badge" class="w-7 h-7 rounded-full bg-indigo-600 text-white font-display font-bold text-sm flex items-center justify-center shrink-0">1</span>
+                            <h2 class="font-display font-bold text-base sm:text-lg text-slate-800">
+                                Знайди найменший спільний знаменник (НСЗ)
+                            </h2>
+                        </div>
+                        <button onclick="showStep1Hint()" id="btn-hint-1" class="text-xs font-bold text-indigo-600 hover:text-indigo-800 bg-indigo-100 hover:bg-indigo-200 px-2.5 py-1.5 rounded-lg transition shrink-0">
+                            💡 Підказка
+                        </button>
+                    </div>
+
+                    <p class="text-sm text-slate-600 mb-4">
+                        Яке найменше число ділиться без остачі і на <strong id="text-d1" class="text-indigo-700 font-bold">2</strong>, і на <strong id="text-d2" class="text-indigo-700 font-bold">3</strong>?
+                    </p>
+
+                    <!-- Блок підказки для Кроку 1 (прихований за замовчуванням) -->
+                    <div id="hint-1-content" class="hidden mb-4 p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-sm text-amber-900 animate-fade-in">
+                        <!-- Наповнюється через JS -->
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-3">
+                        <label for="input-lcd" class="text-sm font-semibold text-slate-700">Спільний знаменник:</label>
+                        <input type="number" id="input-lcd" placeholder="?" 
+                               onkeydown="if(event.key==='Enter') checkStep1()"
+                               class="w-24 h-12 text-center text-xl font-bold rounded-xl border-2 border-slate-300 focus:border-indigo-600 focus:ring-4 focus:ring-indigo-100 outline-none bg-white transition">
+                        
+                        <button onclick="checkStep1()" id="btn-check-1" class="px-5 h-12 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm sm:text-base shadow-sm transition active:scale-95">
+                            Перевірити
+                        </button>
+                    </div>
+                    <p id="msg-step-1" class="mt-2.5 text-sm font-semibold hidden"></p>
+                </div>
+
+                <!-- КРОК 2: Додаткові множники (На що домножити кожен дріб?) -->
+                <div id="step-2-box" class="hidden rounded-2xl border-2 border-indigo-500 bg-indigo-50/40 p-5 animate-fade-in">
+                    <div class="flex items-start justify-between gap-2 mb-3">
+                        <div class="flex items-center gap-2.5">
+                            <span id="step-2-badge" class="w-7 h-7 rounded-full bg-indigo-600 text-white font-display font-bold text-sm flex items-center justify-center shrink-0">2</span>
+                            <h2 class="font-display font-bold text-base sm:text-lg text-slate-800">
+                                Знайди додаткові множники (на що домножити?)
+                            </h2>
+                        </div>
+                        <button onclick="showStep2Hint()" id="btn-hint-2" class="text-xs font-bold text-indigo-600 hover:text-indigo-800 bg-indigo-100 hover:bg-indigo-200 px-2.5 py-1.5 rounded-lg transition shrink-0">
+                            💡 Як знайти?
+                        </button>
+                    </div>
+
+                    <p class="text-sm text-slate-600 mb-4">
+                        Щоб у знаменнику вийшло <strong id="text-lcd-2" class="text-indigo-700">6</strong>, на яке число треба домножити чисельник і знаменник кожного дробу? Впиши числа у віконечка над дробами:
+                    </p>
+
+                    <!-- Блок підказки для Кроку 2 -->
+                    <div id="hint-2-content" class="hidden mb-4 p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-sm text-amber-900 animate-fade-in">
+                        <!-- Наповнюється через JS -->
+                    </div>
+
+                    <!-- Візуалізація дробів з віконцями для додаткових множників -->
+                    <div class="flex flex-wrap items-center justify-center gap-4 sm:gap-6 bg-white p-5 rounded-2xl border border-slate-200 mb-4">
+                        <!-- Перший дріб з віконцем множника -->
+                        <div class="flex flex-col items-center">
+                            <div class="flex items-center gap-1 mb-1">
+                                <span class="text-xs font-bold text-amber-600">×</span>
+                                <input type="number" id="input-m1" placeholder="?" 
+                                       onkeydown="if(event.key==='Enter') document.getElementById('input-m2').focus()"
+                                       class="w-12 h-10 text-center text-base font-extrabold text-amber-700 bg-amber-50 rounded-lg border-2 border-amber-400 focus:border-amber-600 focus:ring-2 focus:ring-amber-200 outline-none">
+                            </div>
+                            <div class="fraction text-slate-800">
+                                <span id="s2-n1" class="fraction-top">1</span>
+                                <span id="s2-d1" class="fraction-bottom">2</span>
+                            </div>
+                        </div>
+
+                        <span class="text-2xl font-extrabold text-slate-400 mt-6">+</span>
+
+                        <!-- Другий дріб з віконцем множника -->
+                        <div class="flex flex-col items-center">
+                            <div class="flex items-center gap-1 mb-1">
+                                <span class="text-xs font-bold text-amber-600">×</span>
+                                <input type="number" id="input-m2" placeholder="?" 
+                                       onkeydown="if(event.key==='Enter') checkStep2()"
+                                       class="w-12 h-10 text-center text-base font-extrabold text-amber-700 bg-amber-50 rounded-lg border-2 border-amber-400 focus:border-amber-600 focus:ring-2 focus:ring-amber-200 outline-none">
+                            </div>
+                            <div class="fraction text-slate-800">
+                                <span id="s2-n2" class="fraction-top">1</span>
+                                <span id="s2-d2" class="fraction-bottom">3</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-center sm:justify-start">
+                        <button onclick="checkStep2()" id="btn-check-2" class="px-6 h-12 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm sm:text-base shadow-sm transition active:scale-95">
+                            Перевірити множники
+                        </button>
+                    </div>
+                    <p id="msg-step-2" class="mt-2.5 text-sm font-semibold hidden"></p>
+                </div>
+
+                <!-- КРОК 3: Зведення до спільного знаменника та додавання -->
+                <div id="step-3-box" class="hidden rounded-2xl border-2 border-indigo-500 bg-indigo-50/40 p-5 animate-fade-in">
+                    <div class="flex items-center gap-2.5 mb-3">
+                        <span id="step-3-badge" class="w-7 h-7 rounded-full bg-indigo-600 text-white font-display font-bold text-sm flex items-center justify-center shrink-0">3</span>
+                        <h2 class="font-display font-bold text-base sm:text-lg text-slate-800">
+                            Помнож чисельники та додай дроби
+                        </h2>
+                    </div>
+
+                    <p class="text-sm text-slate-600 mb-4">
+                        Домнож кожен чисельник на його додатковий множник, а потім додай отримані чисельники:
+                    </p>
+
+                    <!-- Розгорнутий запис перетворення дробів -->
+                    <div class="flex flex-wrap items-center justify-center gap-2 sm:gap-3 bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 mb-4 overflow-x-auto">
+                        
+                        <!-- Вихідний запис з множниками -->
+                        <div class="flex items-center">
+                            <div class="flex flex-col items-center">
+                                <span id="s3-badge-m1" class="multiplier-badge">3</span>
+                                <div class="fraction text-slate-600 text-lg">
+                                    <span id="s3-n1" class="fraction-top">1</span>
+                                    <span id="s3-d1" class="fraction-bottom">2</span>
+                                </div>
+                            </div>
+                            <span class="text-xl font-bold mx-1.5 text-slate-400 mt-5">+</span>
+                            <div class="flex flex-col items-center">
+                                <span id="s3-badge-m2" class="multiplier-badge">2</span>
+                                <div class="fraction text-slate-600 text-lg">
+                                    <span id="s3-n2" class="fraction-top">1</span>
+                                    <span id="s3-d2" class="fraction-bottom">3</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <span class="text-2xl font-bold text-slate-400 mx-1 mt-4">=</span>
+
+                        <!-- Нові дроби з однаковим знаменником (вводить учень) -->
+                        <div class="flex items-center mt-4">
+                            <div class="fraction">
+                                <div class="fraction-top">
+                                    <input type="number" id="input-new-n1" placeholder="?" 
+                                           onkeydown="if(event.key==='Enter') document.getElementById('input-new-n2').focus()"
+                                           class="w-12 h-10 text-center text-lg font-bold rounded-lg border-2 border-indigo-400 focus:border-indigo-600 outline-none bg-indigo-50/50">
+                                </div>
+                                <span id="s3-lcd-1" class="fraction-bottom text-indigo-700">6</span>
+                            </div>
+
+                            <span class="text-2xl font-bold mx-2 text-indigo-600">+</span>
+
+                            <div class="fraction">
+                                <div class="fraction-top">
+                                    <input type="number" id="input-new-n2" placeholder="?" 
+                                           onkeydown="if(event.key==='Enter') document.getElementById('input-final-n').focus()"
+                                           class="w-12 h-10 text-center text-lg font-bold rounded-lg border-2 border-indigo-400 focus:border-indigo-600 outline-none bg-indigo-50/50">
+                                </div>
+                                <span id="s3-lcd-2" class="fraction-bottom text-indigo-700">6</span>
+                            </div>
+                        </div>
+
+                        <span class="text-2xl font-bold text-slate-400 mx-1 mt-4">=</span>
+
+                        <!-- Кінцевий результат -->
+                        <div class="flex items-center mt-4">
+                            <div class="fraction">
+                                <div class="fraction-top border-emerald-600">
+                                    <input type="number" id="input-final-n" placeholder="?" 
+                                           onkeydown="if(event.key==='Enter') checkStep3()"
+                                           class="w-14 h-10 text-center text-lg font-extrabold text-emerald-700 rounded-lg border-2 border-emerald-400 focus:border-emerald-600 outline-none bg-emerald-50/50">
+                                </div>
+                                <span id="s3-lcd-final" class="fraction-bottom text-emerald-700">6</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-3">
+                        <button onclick="checkStep3()" id="btn-check-3" class="px-6 h-12 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm sm:text-base shadow-sm transition active:scale-95">
+                            Перевірити відповідь
+                        </button>
+                    </div>
+                    <p id="msg-step-3" class="mt-2.5 text-sm font-semibold hidden"></p>
+                </div>
+
+                <!-- Блок успішного завершення та можливого скорочення -->
+                <div id="success-box" class="hidden rounded-2xl bg-emerald-50 border-2 border-emerald-400 p-6 text-center animate-fade-in">
+                    <div class="w-14 h-14 bg-emerald-500 text-white rounded-full flex items-center justify-center mx-auto mb-3 shadow-md shadow-emerald-200">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                    </div>
+                    <h3 class="font-display font-extrabold text-xl sm:text-2xl text-emerald-900 mb-1">
+                        Чудова робота! Приклад розв'язано!
+                    </h3>
+                    <p id="final-explanation" class="text-sm sm:text-base text-emerald-800 mb-5 max-w-xl mx-auto">
+                        <!-- Підсумкове пояснення / інформація про скорочення дробу чи виділення цілої частини -->
+                    </p>
+                    <button onclick="generateNewProblem()" class="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-display font-bold text-base shadow-lg shadow-indigo-200 transition transform hover:-translate-y-0.5 active:translate-y-0">
+                        <span>Наступний приклад</span>
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                        </svg>
+                    </button>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Візуальна шпаргалка внизу сторінки: "Нащо ми домножаємо дроби?" -->
+        <section class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200">
+            <div class="flex items-center gap-2.5 mb-3">
+                <span class="text-2xl">🍕</span>
+                <h3 class="font-display font-bold text-lg text-slate-800">Навіщо ми домножаємо дріб? (Візуально)</h3>
+            </div>
+            <p class="text-sm text-slate-600 leading-relaxed mb-4">
+                Ми не можемо просто додати <strong class="text-slate-800">1 шматок піци, розрізаної навпіл</strong>, і <strong class="text-slate-800">1 шматок піци, розрізаної на три частини</strong>, бо ці шматки різного розміру! Коли ми домножаємо чисельник і знаменник дробу на додатковий множник, ми ніби <strong>розрізаємо великі шматки на менші, але однакові за розміром</strong>. Величина дробу при цьому не змінюється!
+            </p>
+            <!-- Динамічна візуалізація поточного прикладу у вигляді смужок -->
+            <div id="visual-bars-container" class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-200/80">
+                <!-- Генерується автоматично під поточне завдання -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Модальне вікно з правилом (Пам'ятка учня) -->
+    <div id="theory-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto animate-fade-in">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-5">
+                <h2 class="font-display font-extrabold text-xl text-indigo-900 flex items-center gap-2">
+                    <span>📘</span> Алгоритм додавання дробів
+                </h2>
+                <button onclick="toggleTheoryModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center font-bold">
+                    ✕
+                </button>
+            </div>
+
+            <div class="space-y-4 text-sm text-slate-700 leading-relaxed">
+                <div class="p-3.5 rounded-2xl bg-indigo-50 border border-indigo-100">
+                    <h4 class="font-bold text-indigo-900 mb-1">Крок 1. Знайди спільний знаменник</h4>
+                    <p>Знайди найменше число, яке ділиться на обидва знаменники. <br>
+                    <em>Підказка:</em> Візьми більший знаменник і множ його на 1, 2, 3..., доки результат не поділиться на менший знаменник.</p>
+                </div>
+
+                <div class="p-3.5 rounded-2xl bg-amber-50 border border-amber-100">
+                    <h4 class="font-bold text-amber-900 mb-1">Крок 2. Знайди додаткові множники</h4>
+                    <p>Поділи спільний знаменник на знаменник першого дробу — це буде <strong>перший додатковий множник</strong>. Потім поділи спільний знаменник на знаменник другого дробу — отримаєш <strong>другий додатковий множник</strong>.</p>
+                </div>
+
+                <div class="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-100">
+                    <h4 class="font-bold text-emerald-900 mb-1">Крок 3. Помнож і додай</h4>
+                    <p>Помнож чисельник кожного дробу на його додатковий множник. Тепер знаменники стали однаковими! Залишилося просто додати нові чисельники, а спільний знаменник залишити без змін.</p>
+                </div>
+            </div>
+
+            <button onclick="toggleTheoryModal()" class="mt-6 w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm transition">
+                Зрозуміло, повертаємось до вправ!
+            </button>
+        </div>
+    </div>
+
+    <!-- Логіка тренажера -->
+    <script>
+        // Стан програми
+        let state = {
+            difficulty: 1, // 1 - легкий, 2 - середній, 3 - майстер
+            n1: 1, d1: 2,
+            n2: 1, d2: 3,
+            lcd: 6,        // Найменший спільний знаменник
+            m1: 3,         // Додатковий множник 1
+            m2: 2,         // Додатковий множник 2
+            newN1: 3,      // Новий чисельник 1
+            newN2: 2,      // Новий чисельник 2
+            finalN: 5,     // Сума чисельників
+            solvedCount: 0,
+            streak: 0,
+            hadMistakeInCurrent: false
+        };
+
+        // Математичні утиліти: НСД та НСК
+        function gcd(a, b) {
+            while (b !== 0) {
+                let t = b;
+                b = a % b;
+                a = t;
+            }
+            return a;
+        }
+
+        function lcm(a, b) {
+            return (a * b) / gcd(a, b);
+        }
+
+        // Генерація випадкового цілого числа в діапазоні [min, max]
+        function randInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        // Зміна рівня складності
+        function setDifficulty(level) {
+            state.difficulty = level;
+            
+            // Оновлення стилів кнопок
+            for (let i = 1; i <= 3; i++) {
+                const btn = document.getElementById(`btn-diff-${i}`);
+                if (i === level) {
+                    btn.className = "diff-btn px-3 py-2 rounded-xl text-xs sm:text-sm font-bold transition bg-indigo-600 text-white shadow-sm";
+                } else {
+                    btn.className = "diff-btn px-3 py-2 rounded-xl text-xs sm:text-sm font-bold transition text-slate-600 hover:bg-slate-100";
+                }
+            }
+            generateNewProblem();
+        }
+
+        // Генерація нового прикладу залежно від рівня складності
+        function generateNewProblem() {
+            let d1, d2, n1, n2;
+
+            if (state.difficulty === 1) {
+                // Рівень 1: Один знаменник ділиться на інший, або дуже прості малі знаменники (до 10)
+                const pairs = [
+                    [2, 4], [2, 6], [2, 8], [3, 6], [3, 9], [4, 8], [5, 10],
+                    [2, 3], [2, 5], [3, 4], [3, 5]
+                ];
+                const pair = pairs[randInt(0, pairs.length - 1)];
+                // Випадково міняємо місцями знаменники
+                if (Math.random() > 0.5) {
+                    d1 = pair[0]; d2 = pair[1];
+                } else {
+                    d1 = pair[1]; d2 = pair[0];
+                }
+                n1 = randInt(1, d1 - 1);
+                n2 = randInt(1, d2 - 1);
+            } else if (state.difficulty === 2) {
+                // Рівень 2: Знаменники мають спільні дільники (НСЗ не є простим добутком), наприклад 4 і 6, 6 і 9, 6 і 8
+                const pairs = [
+                    [4, 6], [6, 8], [6, 9], [4, 10], [6, 10], [8, 12], [9, 12], [10, 15], [6, 15]
+                ];
+                const pair = pairs[randInt(0, pairs.length - 1)];
+                if (Math.random() > 0.5) {
+                    d1 = pair[0]; d2 = pair[1];
+                } else {
+                    d1 = pair[1]; d2 = pair[0];
+                }
+                // Обираємо чисельники так, щоб дроби були нескоротними
+                do { n1 = randInt(1, d1 - 1); } while (gcd(n1, d1) !== 1);
+                do { n2 = randInt(1, d2 - 1); } while (gcd(n2, d2) !== 1);
+            } else {
+                // Рівень 3: Більші та різноманітні знаменники (до 18)
+                const pairs = [
+                    [12, 18], [8, 14], [9, 15], [10, 14], [12, 16], [7, 8], [6, 14], [15, 20], [8, 10]
+                ];
+                const pair = pairs[randInt(0, pairs.length - 1)];
+                if (Math.random() > 0.5) {
+                    d1 = pair[0]; d2 = pair[1];
+                } else {
+                    d1 = pair[1]; d2 = pair[0];
+                }
+                do { n1 = randInt(1, d1 - 1); } while (gcd(n1, d1) !== 1);
+                do { n2 = randInt(1, d2 - 1); } while (gcd(n2, d2) !== 1);
+            }
+
+            const commonDenom = lcm(d1, d2);
+            const mult1 = commonDenom / d1;
+            const mult2 = commonDenom / d2;
+            const newNum1 = n1 * mult1;
+            const newNum2 = n2 * mult2;
+
+            state = {
+                ...state,
+                n1, d1, n2, d2,
+                lcd: commonDenom,
+                m1: mult1,
+                m2: mult2,
+                newN1: newNum1,
+                newN2: newNum2,
+                finalN: newNum1 + newNum2,
+                hadMistakeInCurrent: false
+            };
+
+            resetUIForNewProblem();
+        }
+
+        // Скидання інтерфейсу під новий приклад
+        function resetUIForNewProblem() {
+            // Заповнюємо головну умову
+            document.getElementById('prob-n1').textContent = state.n1;
+            document.getElementById('prob-d1').textContent = state.d1;
+            document.getElementById('prob-n2').textContent = state.n2;
+            document.getElementById('prob-d2').textContent = state.d2;
+
+            // Крок 1
+            document.getElementById('text-d1').textContent = state.d1;
+            document.getElementById('text-d2').textContent = state.d2;
+            const inputLcd = document.getElementById('input-lcd');
+            inputLcd.value = '';
+            inputLcd.disabled = false;
+            inputLcd.className = "w-24 h-12 text-center text-xl font-bold rounded-xl border-2 border-slate-300 focus:border-indigo-600 focus:ring-4 focus:ring-indigo-100 outline-none bg-white transition";
+            
+            document.getElementById('btn-check-1').classList.remove('hidden');
+            document.getElementById('btn-hint-1').classList.remove('hidden');
+            document.getElementById('hint-1-content').classList.add('hidden');
+            document.getElementById('msg-step-1').classList.add('hidden');
+
+            const step1Box = document.getElementById('step-1-box');
+            step1Box.className = "rounded-2xl border-2 border-indigo-500 bg-indigo-50/40 p-5 transition-all";
+            document.getElementById('step-1-badge').className = "w-7 h-7 rounded-full bg-indigo-600 text-white font-display font-bold text-sm flex items-center justify-center shrink-0";
+
+            // Приховуємо Кроки 2, 3 та фінальний блок
+            document.getElementById('step-2-box').classList.add('hidden');
+            document.getElementById('step-3-box').classList.add('hidden');
+            document.getElementById('success-box').classList.add('hidden');
+
+            // Оновлюємо візуальну шпаргалку внизу
+            renderVisualBars(false);
+
+            // Фокус на перше поле вводу
+            setTimeout(() => inputLcd.focus(), 100);
+        }
+
+        // Показати підказку для Кроку 1 (Як шукати НСК)
+        function showStep1Hint() {
+            const hintBox = document.getElementById('hint-1-content');
+            const maxD = Math.max(state.d1, state.d2);
+            const minD = Math.min(state.d1, state.d2);
+            
+            let multiples = [];
+            for (let k = 1; k <= 6; k++) {
+                const val = maxD * k;
+                multiples.push(val);
+                if (val % minD === 0) break;
+            }
+
+            hintBox.innerHTML = `
+                <p class="font-bold mb-1">Як легко знайти спільний знаменник для ${state.d1} і ${state.d2}?</p>
+                <p>Візьми більший знаменник (<strong>${maxD}</strong>) і перевіряй числа, які діляться на нього:</p>
+                <p class="mt-1 font-mono bg-white/80 px-2.5 py-1 rounded border border-amber-200 inline-block">
+                    ${multiples.map(m => m === state.lcd ? `<strong class="text-emerald-700 underline">${m}</strong>` : m).join(', ')}...
+                </p>
+                <p class="mt-1 text-xs">Перше з них, яке поділиться без остачі на <strong>${minD}</strong>, і є спільним знаменником!</p>
+            `;
+            hintBox.classList.remove('hidden');
+        }
+
+        // Перевірка Кроку 1
+        function checkStep1() {
+            const input = document.getElementById('input-lcd');
+            const val = parseInt(input.value);
+            const msg = document.getElementById('msg-step-1');
+
+            if (isNaN(val) || val <= 0) {
+                showMessage(msg, "Будь ласка, введи число!", "error");
+                return;
+            }
+
+            if (val === state.lcd) {
+                // Успіх!
+                showMessage(msg, `Правильно! Найменший спільний знаменник — ${state.lcd}.`, "success");
+                input.disabled = true;
+                input.className = "w-24 h-12 text-center text-xl font-bold rounded-xl border-2 border-emerald-500 bg-emerald-50 text-emerald-800 outline-none";
+                document.getElementById('btn-check-1').classList.add('hidden');
+                document.getElementById('btn-hint-1').classList.add('hidden');
+                document.getElementById('hint-1-content').classList.add('hidden');
+
+                const step1Box = document.getElementById('step-1-box');
+                step1Box.className = "rounded-2xl border border-emerald-300 bg-emerald-50/30 p-5 transition-all";
+                document.getElementById('step-1-badge').className = "w-7 h-7 rounded-full bg-emerald-600 text-white font-display font-bold text-sm flex items-center justify-center shrink-0";
+
+                // Відкриваємо Крок 2
+                openStep2();
+            } else {
+                state.hadMistakeInCurrent = true;
+                if (val % state.d1 === 0 && val % state.d2 === 0 && val > state.lcd) {
+                    showMessage(msg, `Число ${val} ділиться на ${state.d1} і ${state.d2}, але можна знайти МЕНШИЙ спільний знаменник. Спробуй ще раз!`, "warning");
+                } else {
+                    showMessage(msg, `Не зовсім. Число ${val} не ділиться одночасно на ${state.d1} і ${state.d2}. Натисни «Підказка», якщо потрібна допомога.`, "error");
+                }
+            }
+        }
+
+        // Відкриття Кроку 2
+        function openStep2() {
+            const step2Box = document.getElementById('step-2-box');
+            step2Box.classList.remove('hidden');
+            step2Box.className = "rounded-2xl border-2 border-indigo-500 bg-indigo-50/40 p-5 animate-fade-in";
+            document.getElementById('step-2-badge').className = "w-7 h-7 rounded-full bg-indigo-600 text-white font-display font-bold text-sm flex items-center justify-center shrink-0";
+
+            document.getElementById('text-lcd-2').textContent = state.lcd;
+            document.getElementById('s2-n1').textContent = state.n1;
+            document.getElementById('s2-d1').textContent = state.d1;
+            document.getElementById('s2-n2').textContent = state.n2;
+            document.getElementById('s2-d2').textContent = state.d2;
+
+            const m1Input = document.getElementById('input-m1');
+            const m2Input = document.getElementById('input-m2');
+            m1Input.value = '';
+            m2Input.value = '';
+            m1Input.disabled = false;
+            m2Input.disabled = false;
+
+            document.getElementById('btn-check-2').classList.remove('hidden');
+            document.getElementById('btn-hint-2').classList.remove('hidden');
+            document.getElementById('hint-2-content').classList.add('hidden');
+            document.getElementById('msg-step-2').classList.add('hidden');
+
+            setTimeout(() => m1Input.focus(), 150);
+        }
+
+        // Підказка для Кроку 2
+        function showStep2Hint() {
+            const hintBox = document.getElementById('hint-2-content');
+            hintBox.innerHTML = `
+                <p class="font-bold mb-1">Як знайти додатковий множник?</p>
+                <p>Поділи спільний знаменник (<strong>${state.lcd}</strong>) на старий знаменник кожного дробу:</p>
+                <ul class="list-disc list-inside mt-1 space-y-1">
+                    <li>Для першого дробу: <strong>${state.lcd} : ${state.d1} = ?</strong></li>
+                    <li>Для другого дробу: <strong>${state.lcd} : ${state.d2} = ?</strong></li>
+                </ul>
+            `;
+            hintBox.classList.remove('hidden');
+        }
+
+        // Перевірка Кроку 2
+        function checkStep2() {
+            const m1Input = document.getElementById('input-m1');
+            const m2Input = document.getElementById('input-m2');
+            const val1 = parseInt(m1Input.value);
+            const val2 = parseInt(m2Input.value);
+            const msg = document.getElementById('msg-step-2');
+
+            if (isNaN(val1) || isNaN(val2)) {
+                showMessage(msg, "Заповни обидва віконечка над дробами!", "error");
+                return;
+            }
+
+            if (val1 === state.m1 && val2 === state.m2) {
+                showMessage(msg, `Супер! Перший дріб домножаємо на ${state.m1}, а другий — на ${state.m2}.`, "success");
+                m1Input.disabled = true;
+                m2Input.disabled = true;
+                document.getElementById('btn-check-2').classList.add('hidden');
+                document.getElementById('btn-hint-2').classList.add('hidden');
+                document.getElementById('hint-2-content').classList.add('hidden');
+
+                const step2Box = document.getElementById('step-2-box');
+                step2Box.className = "rounded-2xl border border-emerald-300 bg-emerald-50/30 p-5 transition-all";
+                document.getElementById('step-2-badge').className = "w-7 h-7 rounded-full bg-emerald-600 text-white font-display font-bold text-sm flex items-center justify-center shrink-0";
+
+                // Оновлюємо візуальну шпаргалку (показуємо поділ шматків)
+                renderVisualBars(true);
+
+                // Відкриваємо Крок 3
+                openStep3();
+            } else {
+                state.hadMistakeInCurrent = true;
+                let errText = "Перевір обчислення: ";
+                if (val1 !== state.m1) {
+                    errText += `для першого дробу поділи ${state.lcd} на ${state.d1}. `;
+                }
+                if (val2 !== state.m2) {
+                    errText += `Для другого дробу поділи ${state.lcd} на ${state.d2}.`;
+                }
+                showMessage(msg, errText, "error");
+            }
+        }
+
+        // Відкриття Кроку 3
+        function openStep3() {
+            const step3Box = document.getElementById('step-3-box');
+            step3Box.classList.remove('hidden');
+            step3Box.className = "rounded-2xl border-2 border-indigo-500 bg-indigo-50/40 p-5 animate-fade-in";
+            document.getElementById('step-3-badge').className = "w-7 h-7 rounded-full bg-indigo-600 text-white font-display font-bold text-sm flex items-center justify-center shrink-0";
+
+            document.getElementById('s3-badge-m1').textContent = state.m1;
+            document.getElementById('s3-n1').textContent = state.n1;
+            document.getElementById('s3-d1').textContent = state.d1;
+
+            document.getElementById('s3-badge-m2').textContent = state.m2;
+            document.getElementById('s3-n2').textContent = state.n2;
+            document.getElementById('s3-d2').textContent = state.d2;
+
+            document.getElementById('s3-lcd-1').textContent = state.lcd;
+            document.getElementById('s3-lcd-2').textContent = state.lcd;
+            document.getElementById('s3-lcd-final').textContent = state.lcd;
+
+            const in1 = document.getElementById('input-new-n1');
+            const in2 = document.getElementById('input-new-n2');
+            const inf = document.getElementById('input-final-n');
+            
+            in1.value = ''; in2.value = ''; inf.value = '';
+            in1.disabled = false; in2.disabled = false; inf.disabled = false;
+
+            document.getElementById('btn-check-3').classList.remove('hidden');
+            document.getElementById('msg-step-3').classList.add('hidden');
+
+            setTimeout(() => in1.focus(), 150);
+        }
+
+        // Перевірка Кроку 3
+        function checkStep3() {
+            const in1 = document.getElementById('input-new-n1');
+            const in2 = document.getElementById('input-new-n2');
+            const inf = document.getElementById('input-final-n');
+
+            const v1 = parseInt(in1.value);
+            const v2 = parseInt(in2.value);
+            const vf = parseInt(inf.value);
+            const msg = document.getElementById('msg-step-3');
+
+            if (isNaN(v1) || isNaN(v2) || isNaN(vf)) {
+                showMessage(msg, "Заповни всі три порожні віконечка!", "error");
+                return;
+            }
+
+            if (v1 !== state.newN1) {
+                state.hadMistakeInCurrent = true;
+                showMessage(msg, `Помилка у першому чисельнику: помнож ${state.n1} на додатковий множник ${state.m1}.`, "error");
+                in1.focus();
+                return;
+            }
+
+            if (v2 !== state.newN2) {
+                state.hadMistakeInCurrent = true;
+                showMessage(msg, `Помилка у другому чисельнику: помнож ${state.n2} на додатковий множник ${state.m2}.`, "error");
+                in2.focus();
+                return;
+            }
+
+            if (vf !== state.finalN) {
+                state.hadMistakeInCurrent = true;
+                showMessage(msg, `Чисельники знайдено правильно, але їх сума невірна: додай ${state.newN1} + ${state.newN2}.`, "error");
+                inf.focus();
+                return;
+            }
+
+            // Все ідеально!
+            msg.classList.add('hidden');
+            in1.disabled = true; in2.disabled = true; inf.disabled = true;
+            document.getElementById('btn-check-3').classList.add('hidden');
+
+            const step3Box = document.getElementById('step-3-box');
+            step3Box.className = "rounded-2xl border border-emerald-300 bg-emerald-50/30 p-5 transition-all";
+            document.getElementById('step-3-badge').className = "w-7 h-7 rounded-full bg-emerald-600 text-white font-display font-bold text-sm flex items-center justify-center shrink-0";
+
+            completeProblem();
+        }
+
+        // Завершення завдання та оновлення статистики
+        function completeProblem() {
+            state.solvedCount++;
+            if (!state.hadMistakeInCurrent) {
+                state.streak++;
+            } else {
+                state.streak = 1;
+            }
+
+            document.getElementById('score-solved').textContent = state.solvedCount;
+            document.getElementById('score-streak').textContent = state.streak;
+
+            // Перевіряємо, чи можна скоротити отриманий дріб або виділити цілу частину (як корисна довідка)
+            let extraNote = `Ми звели дроби до спільного знаменника <strong>${state.lcd}</strong>, отримали <strong>${state.newN1}/${state.lcd} + ${state.newN2}/${state.lcd} = ${state.finalN}/${state.lcd}</strong>.`;
+            
+            const commonDiv = gcd(state.finalN, state.lcd);
+            let redN = state.finalN / commonDiv;
+            let redD = state.lcd / commonDiv;
+
+            if (commonDiv > 1) {
+                extraNote += `<br><span class="inline-block mt-2 px-3 py-1 bg-white rounded-lg border border-emerald-200 text-xs sm:text-sm">💡 <strong>Додатково:</strong> Цей дріб можна скоротити на ${commonDiv}, і вийде <strong>${redN}/${redD}</strong>!</span>`;
+            }
+
+            if (redN >= redD) {
+                const whole = Math.floor(redN / redD);
+                const rem = redN % redD;
+                if (rem === 0) {
+                    extraNote += `<br><span class="inline-block mt-1.5 px-3 py-1 bg-white rounded-lg border border-emerald-200 text-xs sm:text-sm">🌟 Це неправильний дріб, який дорівнює цілому числу <strong>${whole}</strong>!</span>`;
+                } else {
+                    extraNote += `<br><span class="inline-block mt-1.5 px-3 py-1 bg-white rounded-lg border border-emerald-200 text-xs sm:text-sm">🌟 З неправильного дробу можна виділити цілу частину: <strong>${whole} цілих і ${rem}/${redD}</strong>!</span>`;
+                }
+            }
+
+            document.getElementById('final-explanation').innerHTML = extraNote;
+            document.getElementById('success-box').classList.remove('hidden');
+        }
+
+        // Відображення повідомлень про помилку/успіх
+        function showMessage(element, text, type) {
+            element.textContent = text;
+            element.classList.remove('hidden', 'text-rose-600', 'text-emerald-700', 'text-amber-700');
+            if (type === 'error') {
+                element.classList.add('text-rose-600');
+            } else if (type === 'success') {
+                element.classList.add('text-emerald-700');
+            } else {
+                element.classList.add('text-amber-700');
+            }
+        }
+
+        // Візуалізація дробів у вигляді прямокутних смужок (наочно показує подрібнення)
+        function renderVisualBars(showSubdivisions) {
+            const container = document.getElementById('visual-bars-container');
+            
+            function createBarHTML(num, denom, mult, colorClass, label) {
+                const totalPieces = showSubdivisions ? denom * mult : denom;
+                const filledPieces = showSubdivisions ? num * mult : num;
+                
+                let cells = '';
+                for (let i = 0; i < totalPieces; i++) {
+                    const isFilled = i < filledPieces;
+                    // Додаємо товстішу межу між початковими великими частинами, якщо увімкнено подрібнення
+                    const isMainBoundary = showSubdivisions && (i > 0) && (i % mult === 0);
+                    const borderClass = isMainBoundary ? 'border-l-2 border-slate-700' : 'border-l border-slate-300';
+                    cells += `<div class="h-7 flex-1 ${isFilled ? colorClass : 'bg-white'} ${i === 0 ? '' : borderClass} transition-all duration-500"></div>`;
+                }
+
+                const statusText = showSubdivisions 
+                    ? `${num}/${denom} = <strong>${num * mult}/${denom * mult}</strong> (поділили кожну частину на ${mult})`
+                    : `Дріб <strong>${num}/${denom}</strong> (частинок: ${denom})`;
+
+                return `
+                    <div class="flex flex-col gap-1.5">
+                        <div class="flex justify-between items-center text-xs text-slate-600">
+                            <span>${label}</span>
+                            <span>${statusText}</span>
+                        </div>
+                        <div class="flex w-full rounded-lg overflow-hidden border-2 border-slate-400 shadow-inner">
+                            ${cells}
+                        </div>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = 
+                createBarHTML(state.n1, state.d1, state.m1, 'bg-indigo-500', 'Перший дріб:') +
+                createBarHTML(state.n2, state.d2, state.m2, 'bg-amber-500', 'Другий дріб:');
+        }
+
+        // Відкриття/закриття модального вікна з правилами
+        function toggleTheoryModal() {
+            const modal = document.getElementById('theory-modal');
+            modal.classList.toggle('hidden');
+        }
+
+        // Старт при завантаженні сторінки
+        window.onload = function() {
+            generateNewProblem();
+        };
+    </script>
+</body>
+</html>
